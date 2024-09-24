@@ -73,7 +73,8 @@ const Home = () => {
     <div className="container">
       <h2>Welcome to the Home Page!</h2>
       <p>
-        If you already have an account, you can log in <Link to="/login">here</Link>.
+        If you already have an account, you can log in <Link to="/login">here,</Link> or click here to
+        <Link to="/register"> Register</Link>
       </p>
     </div>
   );
@@ -152,13 +153,96 @@ const LoginForm = () => {
   );
 };
 
-// UserDashboard component
+const Register = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [picture, setPicture] = useState(null);
+  const navigate = useNavigate();
+
+  const handlePictureChange = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.src = reader.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 200;
+        canvas.height = 200;
+        ctx.drawImage(img, 0, 0, 200, 200);
+        const croppedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+        setPicture(croppedBase64);
+      };
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    // const groupId = 100; // Automatically assign group ID as 100
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password, picture }),
+      });
+      if (response.ok) {
+        navigate('/login'); // Redirect to login page on successful registration
+      } else {
+        const error = await response.json();
+        console.error(error);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>
+        Username:
+        <input
+          type="text"
+          value={username}
+          onChange={(event) => setUsername(event.target.value)}
+          required
+        />
+      </label>
+      <label>
+        Password:
+        <input
+          type="password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          required
+        />
+      </label>
+      <label>
+        Picture:
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handlePictureChange}
+          required
+        />
+      </label>
+      <button type="submit">Register</button>
+    </form>
+  );
+};
+
+
+
 const UserDashboard = () => {
   const { logout, token, userId } = useAuth();
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [userInfo, setUserInfo] = useState({ username: '', picture: '' });
 
   const fetchPosts = async () => {
     try {
@@ -170,7 +254,8 @@ const UserDashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setPosts(data.filter(post => post.Content && post.Timestamp)); // Filter out invalid posts
+        setPosts(data.posts); // Assuming the posts are in data.posts
+        setUserInfo(data.userInfo); // Assuming userInfo is in data.userInfo
       } else {
         setError('Failed to fetch posts');
       }
@@ -200,6 +285,13 @@ const UserDashboard = () => {
 
   return (
     <div className="container">
+      <nav className="navbar">
+        <div className="navbar-content">
+          <img src={userInfo.picture} alt="User" className="user-picture" />
+          <span className="username">{userInfo.username}</span>
+          <button onClick={handleLogout} className="logout-button">Logout</button>
+        </div>
+      </nav>
       <h2>Welcome to your dashboard!</h2>
       <CreatePost onPostCreated={handlePostCreated} />
       {error && <p className="error">{error}</p>}
@@ -229,7 +321,6 @@ const UserDashboard = () => {
       ) : (
         <p>No posts found.</p>
       )}
-      <button onClick={handleLogout}>Logout</button>
     </div>
   );
 };
@@ -246,7 +337,6 @@ const CreatePost = ({ onPostCreated }) => {
     setError('');
 
     const newPost = {
-      UserID: userId,
       Content: content,
       MediaType: mediaType,
       MediaURL: mediaURL || null,
@@ -320,6 +410,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginForm />} />
+          <Route path="/register" element={<Register />} />
           <Route
             path="/dashboard"
             element={

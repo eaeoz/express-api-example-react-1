@@ -69,6 +69,35 @@ const PrivateRoute = ({ children }) => {
 
 // Home component
 const Home = () => {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const fetchPosts = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/posts'); // Fetching posts from the API
+
+      if (response.ok) {
+        const data = await response.json();
+        setPosts(data); // Assuming the posts are returned as an array
+      } else {
+        setError('Failed to fetch posts');
+      }
+    } catch (error) {
+      setError('An error occurred while fetching posts');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts(); // Fetch posts on component mount
+  }, []);
+
+  if (loading) {
+    return <div className="container">Loading posts...</div>;
+  }
+
   return (
     <div className="container">
       <h2>Welcome to the Home Page!</h2>
@@ -76,6 +105,29 @@ const Home = () => {
         If you already have an account, you can log in <Link to="/login">here,</Link> or click here to
         <Link to="/register"> Register</Link>
       </p>
+
+      <h3 className='posts-header'>Latest Posts:</h3>
+      {error && <p className="error">{error}</p>}
+      {posts.length > 0 ? (
+        <div className="posts-container">
+          {posts.map((post) => (
+            <div key={post.PostID} className="post">
+              {post.Content && <p className="post-content">{post.Content}</p>}
+              {post.MediaType === 'image' && post.MediaURL && (
+                <img src={post.MediaURL} alt="Post media" className="post-image" />
+              )}
+              {post.Timestamp && (
+                <p className="post-timestamp">
+                  Posted on: {new Date(post.Timestamp).toLocaleString()}
+                </p>
+              )}
+
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p>No posts found.</p>
+      )}
     </div>
   );
 };
@@ -153,14 +205,15 @@ const LoginForm = () => {
   );
 };
 
-const Register = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [picture, setPicture] = useState(null);
-  const navigate = useNavigate();
-
+const PictureUploader = ({ onPictureChange }) => {
   const handlePictureChange = (event) => {
     const file = event.target.files[0];
+
+    // Check if a file is selected before proceeding
+    if (!file) {
+      return; // Exit the function if no file is selected
+    }
+
     const reader = new FileReader();
     reader.onload = () => {
       const img = new Image();
@@ -172,11 +225,33 @@ const Register = () => {
         canvas.height = 200;
         ctx.drawImage(img, 0, 0, 200, 200);
         const croppedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-        setPicture(croppedBase64);
+        onPictureChange(croppedBase64); // Pass the cropped image back to the parent
       };
     };
     reader.readAsDataURL(file);
   };
+
+  return (
+    <label>
+      Picture:
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handlePictureChange}
+        required
+      />
+    </label>
+  );
+};
+
+
+const Register = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [picture, setPicture] = useState(null);
+  const navigate = useNavigate();
+
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -220,15 +295,7 @@ const Register = () => {
           required
         />
       </label>
-      <label>
-        Picture:
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handlePictureChange}
-          required
-        />
-      </label>
+      <PictureUploader onPictureChange={setPicture} />
       <button type="submit">Register</button>
     </form>
   );
@@ -275,8 +342,47 @@ const UserDashboard = () => {
     navigate('/');
   };
 
+  const handleDeletePost = async (postId) => {
+    console.log('PostId:', postId); // Debugging log
+    try {
+      const confirmed = window.confirm('Are you sure you want to delete this post?');
+
+      if (confirmed) {
+        const response = await fetch(`http://localhost:3000/api/${userId}/posts/${postId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          // Remove the deleted post from the state immediately for an optimistic UI update
+          setPosts(posts.filter((post) => post.id !== postId));
+          console.log('Post deleted successfully');
+
+          // Refresh posts after 2 seconds
+          setTimeout(() => {
+            fetchPosts(); // Fetch updated posts from the server
+          }, 2000);
+        } else {
+          setError('Failed to delete post');
+        }
+      }
+    } catch (error) {
+      setError('An error occurred while deleting the post');
+    }
+  };
+
+
+
   const handlePostCreated = (newPost) => {
+    // Optimistically add the new post to the state
     setPosts([newPost, ...posts]);
+
+    // Set timeout to fetch posts after 2 seconds
+    setTimeout(() => {
+      fetchPosts();
+    }, 2000); // Delay of 2000 milliseconds (2 seconds)
   };
 
   if (loading) {
@@ -292,10 +398,10 @@ const UserDashboard = () => {
           <button onClick={handleLogout} className="logout-button">Logout</button>
         </div>
       </nav>
-      <h2>Welcome to your dashboard!</h2>
+      <h3 className='dashboard-header'>Send a Post</h3>
       <CreatePost onPostCreated={handlePostCreated} />
       {error && <p className="error">{error}</p>}
-      <h3>Your Posts:</h3>
+      <h3 className='posts-header'>Your Posts:</h3>
       {posts.length > 0 ? (
         <div className="posts-container">
           {posts.map((post, index) => (
@@ -315,6 +421,12 @@ const UserDashboard = () => {
                 <span>🔁 {post.SharesCount || 0}</span>
                 <span>👁️ {post.ViewCount || 0}</span>
               </div>
+              <div key={post.PostID || index} className="post">
+                {/* ... */}
+                <button onClick={() => handleDeletePost(post.id)} className="delete-button">
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -325,10 +437,13 @@ const UserDashboard = () => {
   );
 };
 
+
+
+
 const CreatePost = ({ onPostCreated }) => {
-  const { token, userId } = useAuth();
+  const { token } = useAuth();
   const [content, setContent] = useState('');
-  const [mediaType, setMediaType] = useState('text');
+  const [mediaType, setMediaType] = useState('image');
   const [mediaURL, setMediaURL] = useState('');
   const [error, setError] = useState('');
 
@@ -355,10 +470,11 @@ const CreatePost = ({ onPostCreated }) => {
 
       if (response.ok) {
         const result = await response.json();
+        // Update the posts state directly here
+        onPostCreated(result.data); // Assuming this function updates your posts state
         setContent('');
-        setMediaType('text');
+        setMediaType('image');
         setMediaURL('');
-        onPostCreated(result.data);
       } else {
         const errorData = await response.json();
         setError(errorData.message || 'Failed to create post');
@@ -368,32 +484,34 @@ const CreatePost = ({ onPostCreated }) => {
     }
   };
 
+  const handleContentChange = (e) => {
+    if (e.target.value.length <= 200) { // Enforce max length
+      setContent(e.target.value);
+    }
+  };
+
   return (
     <div className="create-post">
       <h3>Create a New Post</h3>
       <form onSubmit={handleSubmit}>
         <textarea
+          placeholder="Your comment..."
           value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="What's on your mind?"
+          onChange={handleContentChange}
+          maxLength={200} // Set max length to 200
+          style={{ resize: 'none', overflow: 'hidden' }} // Prevent resizing and hide overflow
+          rows={1 // Start with one row
+          }
+          onInput={(e) => {
+            e.target.style.height = 'auto'; // Reset height
+            e.target.style.height = `${e.target.scrollHeight}px`; // Set height to scroll height
+          }}
           required
         />
-        <select
-          value={mediaType}
-          onChange={(e) => setMediaType(e.target.value)}
-        >
-          <option value="text">Text</option>
-          <option value="image">Image</option>
-          <option value="video">Video</option>
-        </select>
-        {mediaType !== 'text' && (
-          <input
-            type="url"
-            value={mediaURL}
-            onChange={(e) => setMediaURL(e.target.value)}
-            placeholder="Enter media URL"
-          />
-        )}
+
+        {/* Picture Uploader Component */}
+        <PictureUploader onPictureChange={setMediaURL} />
+
         <button type="submit">Post</button>
       </form>
       {error && <p className="error">{error}</p>}

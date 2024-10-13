@@ -75,7 +75,7 @@ const Home = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/posts'); // Fetching posts from the API
+      const response = await fetch('http://localhost:3003/api/posts'); // Fetching posts from the API
 
       if (response.ok) {
         const data = await response.json();
@@ -150,7 +150,7 @@ const LoginForm = () => {
     e.preventDefault();
     const credentials = btoa(`${username}:${password}`);
     try {
-      const response = await fetch('http://localhost:3000/api/login', {
+      const response = await fetch('http://localhost:3003/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -313,7 +313,7 @@ const UserDashboard = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/${userId}/posts`, {
+      const response = await fetch(`http://localhost:3003/api/${userId}/posts`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -348,7 +348,7 @@ const UserDashboard = () => {
       const confirmed = window.confirm('Are you sure you want to delete this post?');
 
       if (confirmed) {
-        const response = await fetch(`http://localhost:3000/api/${userId}/posts/${postId}`, {
+        const response = await fetch(`http://localhost:3003/api/${userId}/posts/${postId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -459,7 +459,7 @@ const CreatePost = ({ onPostCreated }) => {
     };
 
     try {
-      const response = await fetch('http://localhost:3000/api/posts', {
+      const response = await fetch('http://localhost:3003/api/posts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

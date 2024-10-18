@@ -205,6 +205,37 @@ const LoginForm = () => {
   );
 };
 
+
+
+
+const ThemeSwitch = () => {
+  const [checked, setChecked] = React.useState(false);
+
+  const handleChange = () => {
+    setChecked(!checked);
+    // Call the theme switching function here
+    if (checked) {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    }
+  };
+
+  return (
+    <label className="switch">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={handleChange}
+        id="theme-switch"
+      />
+      <span className="slider round"></span>
+    </label>
+  );
+};
+
 const PictureUploader = ({ onPictureChange }) => {
   const handlePictureChange = (event) => {
     const file = event.target.files[0];
@@ -398,10 +429,11 @@ const UserDashboard = () => {
           <button onClick={handleLogout} className="logout-button">Logout</button>
         </div>
       </nav>
+      <ThemeSwitch />
       <h3 className='dashboard-header'>Send a Post</h3>
       <CreatePost onPostCreated={handlePostCreated} />
       {error && <p className="error">{error}</p>}
-      <h3 className='posts-header'>Your Posts:</h3>
+      <h3 className='posts-header'>Your Posts</h3>
       {posts.length > 0 ? (
         <div className="posts-container">
           {posts.map((post, index) => (
@@ -415,12 +447,7 @@ const UserDashboard = () => {
                   Posted on: {new Date(post.Timestamp).toLocaleString()}
                 </p>
               )}
-              <div className="post-metrics">
-                <span>👍 {post.LikesCount || 0}</span>
-                <span>💬 {post.CommentsCount || 0}</span>
-                <span>🔁 {post.SharesCount || 0}</span>
-                <span>👁️ {post.ViewCount || 0}</span>
-              </div>
+
               <div key={post.PostID || index} className="post">
                 {/* ... */}
                 <button onClick={() => handleDeletePost(post.id)} className="delete-button">

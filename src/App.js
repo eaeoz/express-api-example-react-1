@@ -201,6 +201,7 @@ const LoginForm = () => {
         {error && <p className="error">{error}</p>}
         <button type="submit">Login</button>
       </form>
+      <ThemeSwitch />
     </div>
   );
 };
@@ -263,15 +264,12 @@ const PictureUploader = ({ onPictureChange }) => {
   };
 
   return (
-    <label>
-      Picture:
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handlePictureChange}
-        required
-      />
-    </label>
+    <input
+      type="file"
+      accept="image/*"
+      onChange={handlePictureChange}
+      required
+    />
   );
 };
 
@@ -519,6 +517,7 @@ const CreatePost = ({ onPostCreated }) => {
 
   return (
     <div className="create-post">
+      <hr></hr>
       <h3>Create a New Post</h3>
       <form onSubmit={handleSubmit}>
         <textarea

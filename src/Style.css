@@ -40,7 +40,6 @@ body {
   max-width: 800px;
   width: 100%;
   padding: 20px;
-  background-color: #1e1e1e;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
 }
@@ -51,10 +50,15 @@ h2 {
   text-align: center;
 }
 
+.create-post h3 {
+  margin-top: 10px;
+}
+
 /* Form styles */
 form {
   background-color: var(--background-color);
-  padding: 20px;
+  color: var(--text-color);
+  padding: 20px 0px 20px 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
   animation: fadeIn 2s;
@@ -73,7 +77,7 @@ input {
   border: 1px solid #333;
   border-radius: 4px;
   background-color: var(--background-color);
-  color: #f0f0f0;
+  color: var(--text-color);
   border: none;
   outline: none;
 }
@@ -106,7 +110,7 @@ textarea {
   border-radius: 5px;
   padding: 5px;
   margin-right: 5px;
-  margin-top: 20px;
+  margin-top: 2px;
 }
 
 /* Error message */
@@ -187,8 +191,8 @@ h3 {
 }
 
 .navbar {
-  background-color: #333;
-  color: white;
+  background-color: var(--background-color);
+  color: var(--text-color);
   padding: 10px;
   display: flex;
   align-items: center;
@@ -198,6 +202,7 @@ h3 {
 .navbar-content {
   display: flex;
   align-items: center;
+  margin-bottom: 5px;
 }
 
 .user-picture {
@@ -270,6 +275,7 @@ h3 {
 }
 
 .switch {
+  background-color: var(--background-color);
   position: relative;
   display: inline-block;
   width: 60px;
@@ -321,7 +327,7 @@ input:checked + .slider:before {
 }
 
 input[type="file"] {
-  background-color: gray;
+  background-color: var(--background-color);
   color: var(--text-color);
   border: none;
   padding: 10px;
@@ -336,6 +342,11 @@ input[type="file"] {
 
 .slider.round:before {
   border-radius: 50%;
+}
+
+.class-container {
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
 /* Responsive adjustments */

@@ -340,6 +340,12 @@ const UserDashboard = () => {
   const [error, setError] = useState('');
   const [userInfo, setUserInfo] = useState({ username: '', picture: '' });
 
+
+
+  const handleEditPost = (post) => {
+    console.log("test")
+  };
+
   const fetchPosts = async () => {
     try {
       const response = await fetch(`http://localhost:3003/api/${userId}/posts`, {
@@ -448,6 +454,9 @@ const UserDashboard = () => {
 
               <div key={post.PostID || index} className="post">
                 {/* ... */}
+                <button onClick={() => handleEditPost(post)} className="edit-button">
+                  Edit
+                </button>
                 <button onClick={() => handleDeletePost(post.id)} className="delete-button">
                   Delete
                 </button>

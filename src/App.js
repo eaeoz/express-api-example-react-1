@@ -339,11 +339,22 @@ const UserDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [userInfo, setUserInfo] = useState({ username: '', picture: '' });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [postContent, setPostContent] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
 
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
 
+  const handleEditPost = (e) => {
+    // e.preventDefault();
+    setIsModalOpen(true);
+    // Add code here to handle the edited post
+  };
 
-  const handleEditPost = (post) => {
-    console.log("test")
+  const handleModalClose = () => {
+    setIsModalOpen(false);
   };
 
   const fetchPosts = async () => {
@@ -452,7 +463,7 @@ const UserDashboard = () => {
                 </p>
               )}
 
-              <div key={post.PostID || index} className="post">
+              <div key={post.PostID || index} className="button-container">
                 {/* ... */}
                 <button onClick={() => handleEditPost(post)} className="edit-button">
                   Edit
@@ -463,6 +474,31 @@ const UserDashboard = () => {
               </div>
             </div>
           ))}
+          {isModalOpen && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <button className="close-button" onClick={handleModalClose}>
+
+                </button>
+                <h2>Edit Post</h2>
+                <form>
+                  <textarea
+                    className="edit-post-textarea"
+                    value={postContent}
+                    onChange={(e) => setPostContent(e.target.value)}
+                  />
+                  <input
+                    type="file"
+                    className="edit-post-file-input"
+                    onChange={(e) => handleFileChange(e)}
+                  />
+                  <button className="edit-post-button" onClick={handleEditPost}>
+                    Edit Post
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <p>No posts found.</p>

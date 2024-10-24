@@ -388,6 +388,49 @@ const UserDashboard = () => {
     navigate('/');
   };
 
+  const handleOpenEditModal = async (post) => {
+    try {
+      const postId = post.PostID;
+      const userId = post.UserID;
+      const newContent = post.Content; // Define new content
+      const newMediaType = post.MediaType; // Define new media type
+      const newMediaURL = post.MediaURL; // Define new media URL
+
+      const updatedPost = {
+        content: newContent,
+        mediaType: newMediaType,
+        mediaURL: newMediaURL || null,
+        timestamp: new Date().toISOString()
+      };
+
+      const url = `http://localhost:3003/api/${userId}/posts/${postId}`;
+      console.log('URL:', url);
+
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updatedPost),
+      });
+
+      console.log('Response:', response);
+
+      const data = await response.json();
+
+      console.log('Data:', data);
+
+      if (response.ok) {
+        console.log(data);
+      } else {
+        console.error(data);
+      }
+    } catch (error) {
+      console.error('Error in handleOpenEditModal:', error);
+    }
+  };
+
   const handleDeletePost = async (postId) => {
     console.log('PostId:', postId); // Debugging log
     try {
@@ -418,9 +461,6 @@ const UserDashboard = () => {
       setError('An error occurred while deleting the post');
     }
   };
-
-
-
   const handlePostCreated = (newPost) => {
     // Optimistically add the new post to the state
     setPosts([newPost, ...posts]);
@@ -430,6 +470,7 @@ const UserDashboard = () => {
       fetchPosts();
     }, 2000); // Delay of 2000 milliseconds (2 seconds)
   };
+
 
   if (loading) {
     return <div className="container">Loading posts...</div>;
@@ -472,33 +513,33 @@ const UserDashboard = () => {
                   Delete
                 </button>
               </div>
+              {isModalOpen && (
+                <div className="modal-overlay">
+                  <div className="modal-content">
+                    <button className="close-button" onClick={handleModalClose}>
+
+                    </button>
+                    <h2>Edit Post</h2>
+                    <form>
+                      <textarea
+                        className="edit-post-textarea"
+                        value={postContent}
+                        onChange={(e) => setPostContent(e.target.value)}
+                      />
+                      <input
+                        type="file"
+                        className="edit-post-file-input"
+                        onChange={(e) => handleFileChange(e)}
+                      />
+                      <button className="edit-post-button" onClick={() => handleOpenEditModal(post)}>
+                        Edit Post
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
-          {isModalOpen && (
-            <div className="modal-overlay">
-              <div className="modal-content">
-                <button className="close-button" onClick={handleModalClose}>
-
-                </button>
-                <h2>Edit Post</h2>
-                <form>
-                  <textarea
-                    className="edit-post-textarea"
-                    value={postContent}
-                    onChange={(e) => setPostContent(e.target.value)}
-                  />
-                  <input
-                    type="file"
-                    className="edit-post-file-input"
-                    onChange={(e) => handleFileChange(e)}
-                  />
-                  <button className="edit-post-button" onClick={handleEditPost}>
-                    Edit Post
-                  </button>
-                </form>
-              </div>
-            </div>
-          )}
         </div>
       ) : (
         <p>No posts found.</p>

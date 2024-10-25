@@ -341,10 +341,40 @@ const UserDashboard = () => {
   const [userInfo, setUserInfo] = useState({ username: '', picture: '' });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [postContent, setPostContent] = useState('');
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [mediaURL, setMediaURL] = useState(null);
 
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
+  const handleOpenEditModal = async (postId) => {
+    console.log("User id:", userId);
+    console.log("Token :", token);
+    console.log("Post id:", postId);
+    const updatedPost = {
+      Content: postContent,
+      MediaType: 'image/jpeg',
+      MediaURL: mediaURL || null,
+      Timestamp: new Date().toISOString()
+    };
+
+    console.log(updatedPost)
+    // try {
+    //   const response = await fetch(`http://localhost:3003/api/posts/${postId}`, {
+    //     method: 'PUT',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       'Authorization': `Bearer ${token}`
+    //     },
+    //     body: JSON.stringify(updatedPost)
+    //   });
+
+    //   if (response.ok) {
+    //     const result = await response.json();
+    //     console.log(result);
+    //   } else {
+    //     const errorData = await response.json();
+    //     console.error(errorData.message || 'Failed to update post');
+    //   }
+    // } catch (error) {
+    //   console.error('An error occurred while updating the post', error.message);
+    // }
   };
 
   const handleEditPost = (e) => {
@@ -388,48 +418,7 @@ const UserDashboard = () => {
     navigate('/');
   };
 
-  const handleOpenEditModal = async (post) => {
-    try {
-      const postId = post.PostID;
-      const userId = post.UserID;
-      const newContent = post.Content; // Define new content
-      const newMediaType = post.MediaType; // Define new media type
-      const newMediaURL = post.MediaURL; // Define new media URL
 
-      const updatedPost = {
-        content: newContent,
-        mediaType: newMediaType,
-        mediaURL: newMediaURL || null,
-        timestamp: new Date().toISOString()
-      };
-
-      const url = `http://localhost:3003/api/${userId}/posts/${postId}`;
-      console.log('URL:', url);
-
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(updatedPost),
-      });
-
-      console.log('Response:', response);
-
-      const data = await response.json();
-
-      console.log('Data:', data);
-
-      if (response.ok) {
-        console.log(data);
-      } else {
-        console.error(data);
-      }
-    } catch (error) {
-      console.error('Error in handleOpenEditModal:', error);
-    }
-  };
 
   const handleDeletePost = async (postId) => {
     console.log('PostId:', postId); // Debugging log
@@ -520,18 +509,19 @@ const UserDashboard = () => {
 
                     </button>
                     <h2>Edit Post</h2>
-                    <form>
+                    <form onSubmit={() => handleOpenEditModal(post.id)}>
                       <textarea
                         className="edit-post-textarea"
-                        value={postContent}
+                        defaultValue={post.Content}
                         onChange={(e) => setPostContent(e.target.value)}
                       />
-                      <input
-                        type="file"
-                        className="edit-post-file-input"
-                        onChange={(e) => handleFileChange(e)}
+                      <PictureUploader
+                        onPictureChange={setMediaURL}
                       />
-                      <button className="edit-post-button" onClick={() => handleOpenEditModal(post)}>
+                      <button
+                        className="edit-post-button"
+                        type="submit"
+                      >
                         Edit Post
                       </button>
                     </form>

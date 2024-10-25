@@ -342,21 +342,24 @@ const UserDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [postContent, setPostContent] = useState('');
   const [mediaURL, setMediaURL] = useState(null);
+  const [currentPost, setCurrentPost] = useState(null);
 
   const handleOpenEditModal = async (postId) => {
-    console.log("User id:", userId);
-    console.log("Token :", token);
-    console.log("Post id:", postId);
+    console.log("User id: ", postId)
+    console.log("Token :", token)
+    console.log("Post id:", postId)
+
     const updatedPost = {
       Content: postContent,
       MediaType: 'image/jpeg',
       MediaURL: mediaURL || null,
-      Timestamp: new Date().toISOString()
+      // Timestamp: new Date().toISOString()
     };
 
-    console.log(updatedPost)
+    console.log("Updated post:", updatedPost);
+
     // try {
-    //   const response = await fetch(`http://localhost:3003/api/posts/${postId}`, {
+    //   const response = await fetch(`http://localhost:3003/api/${userId}/posts/${postId}`, {
     //     method: 'PUT',
     //     headers: {
     //       'Content-Type': 'application/json',
@@ -367,20 +370,20 @@ const UserDashboard = () => {
 
     //   if (response.ok) {
     //     const result = await response.json();
-    //     console.log(result);
+    //     alert("Post updated successfully");
     //   } else {
     //     const errorData = await response.json();
-    //     console.error(errorData.message || 'Failed to update post');
+    //     console.error("Error response:", errorData);
+    //     alert(errorData.message || 'Failed to update post');
     //   }
     // } catch (error) {
-    //   console.error('An error occurred while updating the post', error.message);
+    //   console.error("Network error:", error.message);
+    //   alert("Network error occurred while updating the post");
     // }
   };
 
-  const handleEditPost = (e) => {
-    // e.preventDefault();
-    setIsModalOpen(true);
-    // Add code here to handle the edited post
+  const handleEditPost = () => {
+    setIsModalOpen(true); // Open the modal
   };
 
   const handleModalClose = () => {
@@ -495,7 +498,7 @@ const UserDashboard = () => {
 
               <div key={post.PostID || index} className="button-container">
                 {/* ... */}
-                <button onClick={() => handleEditPost(post)} className="edit-button">
+                <button onClick={() => { setCurrentPost(post); handleEditPost(); }} className="edit-button">
                   Edit
                 </button>
                 <button onClick={() => handleDeletePost(post.id)} className="delete-button">
@@ -509,10 +512,10 @@ const UserDashboard = () => {
 
                     </button>
                     <h2>Edit Post</h2>
-                    <form onSubmit={() => handleOpenEditModal(post.id)}>
+                    <form onSubmit={(e) => { e.preventDefault(); handleOpenEditModal(post.id) }}>
                       <textarea
                         className="edit-post-textarea"
-                        defaultValue={post.Content}
+                        defaultValue={currentPost.Content}
                         onChange={(e) => setPostContent(e.target.value)}
                       />
                       <PictureUploader

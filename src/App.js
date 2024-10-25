@@ -419,8 +419,6 @@ const UserDashboard = () => {
     navigate('/');
   };
 
-
-
   const handleDeletePost = async (postId) => {
     console.log('PostId:', postId); // Debugging log
     try {

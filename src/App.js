@@ -345,41 +345,39 @@ const UserDashboard = () => {
   const [currentPost, setCurrentPost] = useState(null);
 
   const handleOpenEditModal = async (postId) => {
-    console.log("User id: ", postId)
-    console.log("Token :", token)
-    console.log("Post id:", postId)
-
     const updatedPost = {
       Content: postContent,
-      MediaType: 'image/jpeg',
+      MediaType: 'image',
       MediaURL: mediaURL || null,
       // Timestamp: new Date().toISOString()
     };
 
     console.log("Updated post:", updatedPost);
 
-    // try {
-    //   const response = await fetch(`http://localhost:3003/api/${userId}/posts/${postId}`, {
-    //     method: 'PUT',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       'Authorization': `Bearer ${token}`
-    //     },
-    //     body: JSON.stringify(updatedPost)
-    //   });
+    try {
+      const response = await fetch(`http://localhost:3003/api/${userId}/posts/${currentPost.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updatedPost)
+      });
 
-    //   if (response.ok) {
-    //     const result = await response.json();
-    //     alert("Post updated successfully");
-    //   } else {
-    //     const errorData = await response.json();
-    //     console.error("Error response:", errorData);
-    //     alert(errorData.message || 'Failed to update post');
-    //   }
-    // } catch (error) {
-    //   console.error("Network error:", error.message);
-    //   alert("Network error occurred while updating the post");
-    // }
+      if (response.ok) {
+        const result = await response.json();
+        alert("Post updated successfully");
+        handleModalClose();
+        fetchPosts();
+      } else {
+        const errorData = await response.json();
+        console.error("Error response:", errorData);
+        alert(errorData.message || 'Failed to update post');
+      }
+    } catch (error) {
+      console.error("Network error:", error.message);
+      alert("Network error occurred while updating the post");
+    }
   };
 
   const handleEditPost = () => {

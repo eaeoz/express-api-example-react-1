@@ -101,6 +101,7 @@ const Home = () => {
   return (
     <div className="container">
       <h2>Welcome to the Home Page!</h2>
+      <ThemeSwitch />
       <p>
         If you already have an account, you can log in <Link to="/login">here,</Link> or click here to
         <Link to="/register"> Register</Link>
@@ -208,15 +209,22 @@ const LoginForm = () => {
   );
 };
 
-
-
-
 const ThemeSwitch = () => {
-  const [checked, setChecked] = React.useState(false);
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme === 'dark') {
+      setChecked(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      setChecked(false);
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
 
   const handleChange = () => {
     setChecked(!checked);
-    // Call the theme switching function here
     if (checked) {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('theme', 'light');

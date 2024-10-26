@@ -177,29 +177,31 @@ const LoginForm = () => {
   return (
     <div className="container">
       <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label htmlFor="username">Username:</label>
+      <form onSubmit={handleLogin} className="form-container">
+        <div className="form-group">
+          <label>Username:</label>
           <input
             type="text"
-            id="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
+            className="form-input"
           />
         </div>
-        <div>
-          <label htmlFor="password">Password:</label>
+        <div className="form-group">
+          <label>Password:</label>
           <input
             type="password"
-            id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className="form-input"
           />
         </div>
         {error && <p className="error">{error}</p>}
-        <button type="submit">Login</button>
+        <button type="submit" className="form-button">
+          Login
+        </button>
       </form>
       <ThemeSwitch />
     </div>
@@ -299,33 +301,45 @@ const Register = () => {
         const error = await response.json();
         console.error(error);
       }
+      alert(`Registration successful, welcome ${username}! You'll be redirected to login page..`);
+
     } catch (error) {
       console.error(error);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Username:
-        <input
-          type="text"
-          value={username}
-          onChange={(event) => setUsername(event.target.value)}
-          required
-        />
-      </label>
-      <label>
-        Password:
-        <input
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          required
-        />
-      </label>
-      <PictureUploader onPictureChange={setPicture} />
-      <button type="submit">Register</button>
+    <form onSubmit={handleSubmit} className='container'>
+      <div className="form-container">
+        <h2>Register</h2>
+        <div className="form-group">
+          <label>Username:</label>
+          <input
+            type="text"
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
+            required
+            className="form-input"
+          />
+        </div>
+        <div className="form-group">
+          <label>Password:</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
+            className="form-input"
+          />
+        </div>
+        <div className="form-group">
+          <PictureUploader onPictureChange={setPicture} />
+        </div>
+        <button type="submit" className="form-button">
+          Register
+        </button>
+      </div>
+      <ThemeSwitch />
     </form>
   );
 };

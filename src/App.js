@@ -290,8 +290,6 @@ const Register = () => {
   const [picture, setPicture] = useState(null);
   const navigate = useNavigate();
 
-
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     // const groupId = 100; // Automatically assign group ID as 100

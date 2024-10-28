@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom';
-
+const hostname = process.env.REACT_APP_HOST_NAME || "http://localhost:3003";
+console.log(hostname)
 // Create AuthContext to manage auth state
 const AuthContext = createContext();
 
@@ -75,7 +76,7 @@ const Home = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch('http://localhost:3003/api/posts'); // Fetching posts from the API
+      const response = await fetch(`${hostname}/api/posts`); // Fetching posts from the API
 
       if (response.ok) {
         const data = await response.json();
@@ -111,8 +112,8 @@ const Home = () => {
       {error && <p className="error">{error}</p>}
       {posts.length > 0 ? (
         <div className="posts-container">
-          {posts.map((post) => (
-            <div key={post.PostID} className="post">
+          {posts.map((post, index) => (
+            <div key={index} className="post">
               {post.Content && <p className="post-content">{post.Content}</p>}
               {post.MediaType === 'image' && post.MediaURL && (
                 <img src={post.MediaURL} alt="Post media" className="post-image" />
@@ -151,7 +152,7 @@ const LoginForm = () => {
     e.preventDefault();
     const credentials = btoa(`${username}:${password}`);
     try {
-      const response = await fetch('http://localhost:3003/api/login', {
+      const response = await fetch(`${hostname}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -375,7 +376,7 @@ const UserDashboard = () => {
     console.log("Updated post:", updatedPost);
 
     try {
-      const response = await fetch(`http://localhost:3003/api/${userId}/posts/${currentPost.id}`, {
+      const response = await fetch(`${hostname}/api/${userId}/posts/${currentPost.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -410,7 +411,7 @@ const UserDashboard = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch(`http://localhost:3003/api/${userId}/posts`, {
+      const response = await fetch(`${hostname}/api/${userId}/posts`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -445,7 +446,7 @@ const UserDashboard = () => {
       const confirmed = window.confirm('Are you sure you want to delete this post?');
 
       if (confirmed) {
-        const response = await fetch(`http://localhost:3003/api/${userId}/posts/${postId}`, {
+        const response = await fetch(`${hostname}/api/${userId}/posts/${postId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -579,7 +580,7 @@ const CreatePost = ({ onPostCreated }) => {
     };
 
     try {
-      const response = await fetch('http://localhost:3003/api/posts', {
+      const response = await fetch(`${hostname}/api/posts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
